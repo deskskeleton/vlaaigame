@@ -11,6 +11,13 @@
         <!-- Game Section -->
         <div class="game-section">
             <h1>🥧 Vlaai Bargaining Game</h1>
+            
+            <!-- Player Labels -->
+            <div class="player-labels">
+                <div id="player1Label" class="player-label active">Player 1</div>
+                <div id="player2Label" class="player-label">Player 2</div>
+            </div>
+
             <div class="vlaai-display">
                 <div class="vlaai-value">
                     <h2>Total to Split: <span id="cakeValue">100</span>%</h2>
@@ -19,32 +26,51 @@
                     <div id="vlaaiImage" class="vlaai-image">🥧</div>
                 </div>
             </div>
-            <div class="bargaining-controls">
+
+            <!-- Offer Controls -->
+            <div id="offerControls" class="bargaining-controls">
                 <div class="offer-section">
                     <label for="offerAmount">Your Share (%):</label>
                     <input type="number" id="offerAmount" min="0" max="100" value="50">
                     <button id="makeOffer" class="primary-button">Make Offer</button>
                 </div>
-                <div class="game-status">
-                    <p id="gameStatus">Make an offer to start the game! What percentage of the vlaai do you want?</p>
-                </div>
             </div>
+
+            <!-- Response Controls -->
+            <div id="responseControls" class="response-controls">
+                <button id="acceptOffer" class="success-button">Accept Offer</button>
+                <button id="rejectOffer" class="danger-button">Reject Offer</button>
+            </div>
+
+            <div class="game-status">
+                <p id="gameStatus">Player 1, make your offer!</p>
+            </div>
+
             <div class="game-history">
                 <h3>Game History</h3>
                 <ul id="historyList"></ul>
             </div>
+
             <div class="export-section">
                 <button onclick="exportGameLogs()" class="secondary-button">Export Game Logs</button>
             </div>
         </div>
 
         <!-- Chat Section -->
-        <div class="chat-section">
-            <h2>Chat with Assistant</h2>
-            <div id="chatMessages" class="chat-messages"></div>
-            <div class="chat-input">
-                <input type="text" id="userMessage" placeholder="Type your message...">
-                <button id="sendMessage" class="primary-button">Send</button>
+        <div id="chatSection" class="chat-section">
+            <div class="chat-header">
+                <h2>AI Assistant</h2>
+                <label class="chat-toggle">
+                    <input type="checkbox" id="toggleChat" checked>
+                    <span class="toggle-label">Show AI Assistant</span>
+                </label>
+            </div>
+            <div id="chatContent" class="chat-content">
+                <div id="chatMessages" class="chat-messages"></div>
+                <div class="chat-input">
+                    <input type="text" id="userMessage" placeholder="Type your message...">
+                    <button id="sendMessage" class="primary-button">Send</button>
+                </div>
             </div>
         </div>
     </div>

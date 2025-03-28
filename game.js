@@ -5,6 +5,7 @@ const gameState = {
     round: 1,
     maxRounds: 3,
     gameOver: false,
+    currentPlayer: 1, // Track current player (1 or 2)
     gameLog: {
         gameId: new Date().toISOString(),
         rounds: [],
@@ -18,22 +19,57 @@ const elements = {
     totalDisplay: document.getElementById('cakeValue'),
     offerAmount: document.getElementById('offerAmount'),
     makeOffer: document.getElementById('makeOffer'),
+    acceptOffer: document.getElementById('acceptOffer'),
+    rejectOffer: document.getElementById('rejectOffer'),
     gameStatus: document.getElementById('gameStatus'),
-    historyList: document.getElementById('historyList')
+    historyList: document.getElementById('historyList'),
+    player1Label: document.getElementById('player1Label'),
+    player2Label: document.getElementById('player2Label'),
+    offerControls: document.getElementById('offerControls'),
+    responseControls: document.getElementById('responseControls')
 };
 
 // Initialize game
 function initializeGame() {
     updateDisplay();
     elements.makeOffer.addEventListener('click', handleOffer);
+    elements.acceptOffer.addEventListener('click', () => handleResponse(true));
+    elements.rejectOffer.addEventListener('click', () => handleResponse(false));
+    
+    // Hide response controls initially
+    elements.responseControls.style.display = 'none';
+    
     // Log game start
     logGameEvent('gameStart', { initialPercentage: gameState.totalPercentage });
+    
+    updatePlayerLabels();
 }
 
 // Update the display with current game state
 function updateDisplay() {
     elements.totalDisplay.textContent = gameState.totalPercentage;
     elements.offerAmount.max = gameState.totalPercentage;
+}
+
+// Update player labels to show current player
+function updatePlayerLabels() {
+    elements.player1Label.classList.toggle('active', gameState.currentPlayer === 1);
+    elements.player2Label.classList.toggle('active', gameState.currentPlayer === 2);
+    
+    // Show/hide appropriate controls
+    if (!gameState.gameOver) {
+        if (gameState.currentOffer === 0) {
+            // Show offer controls to current player
+            elements.offerControls.style.display = 'block';
+            elements.responseControls.style.display = 'none';
+            elements.gameStatus.textContent = `Player ${gameState.currentPlayer}, make your offer!`;
+        } else {
+            // Show response controls to other player
+            elements.offerControls.style.display = 'none';
+            elements.responseControls.style.display = 'block';
+            elements.gameStatus.textContent = `Player ${gameState.currentPlayer}, accept or reject the offer?`;
+        }
+    }
 }
 
 // Add an entry to the game history and log
@@ -71,7 +107,7 @@ function saveGameLog() {
     localStorage.setItem('vlaaiGameLogs', JSON.stringify(logs));
 }
 
-// Handle the player's offer
+// Handle player's offer
 function handleOffer() {
     if (gameState.gameOver) {
         return;
@@ -86,77 +122,80 @@ function handleOffer() {
     }
 
     gameState.currentOffer = offerAmount;
-    addToHistory(`Round ${gameState.round}: You offered ${offerAmount}% of the vlaai`);
+    addToHistory(`Round ${gameState.round}: Player ${gameState.currentPlayer} offered ${offerAmount}% of the vlaai`);
     
     // Log the offer
-    logGameEvent('playerOffer', { percentage: offerAmount });
+    logGameEvent('playerOffer', { 
+        player: gameState.currentPlayer,
+        percentage: offerAmount 
+    });
 
-    // Simulate AI response (this will be replaced with GPT-4 integration)
-    const aiResponse = simulateAIResponse(offerAmount);
-    
-    if (aiResponse.accepted) {
-        handleAcceptedOffer(offerAmount);
+    // Switch to other player's turn to respond
+    gameState.currentPlayer = gameState.currentPlayer === 1 ? 2 : 1;
+    updatePlayerLabels();
+}
+
+// Handle response to offer
+function handleResponse(accepted) {
+    if (accepted) {
+        handleAcceptedOffer();
     } else {
-        handleRejectedOffer(aiResponse.counterOffer);
+        handleRejectedOffer();
     }
+    
+    // Reset offer
+    gameState.currentOffer = 0;
+    
+    // Switch back to other player
+    gameState.currentPlayer = gameState.currentPlayer === 1 ? 2 : 1;
+    updatePlayerLabels();
 }
 
 // Handle accepted offer
-function handleAcceptedOffer(percentage) {
-    addToHistory(`AI accepted your offer of ${percentage}% of the vlaai`);
-    elements.gameStatus.textContent = `Offer accepted! You get ${percentage}% of the vlaai, AI gets ${gameState.totalPercentage - percentage}%`;
+function handleAcceptedOffer() {
+    const offeringPlayer = gameState.currentPlayer === 1 ? 2 : 1;
+    const receivingPlayer = gameState.currentPlayer;
+    
+    addToHistory(`Player ${gameState.currentPlayer} accepted Player ${offeringPlayer}'s offer of ${gameState.currentOffer}%`);
+    elements.gameStatus.textContent = `Offer accepted! Player ${offeringPlayer} gets ${gameState.currentOffer}%, Player ${receivingPlayer} gets ${gameState.totalPercentage - gameState.currentOffer}%`;
     
     // Log acceptance
     logGameEvent('offerAccepted', { 
-        playerPercentage: percentage,
-        aiPercentage: gameState.totalPercentage - percentage 
+        offeringPlayer: offeringPlayer,
+        receivingPlayer: receivingPlayer,
+        offerPercentage: gameState.currentOffer,
+        remainingPercentage: gameState.totalPercentage - gameState.currentOffer
     });
     
     endGame('accepted');
 }
 
 // Handle rejected offer
-function handleRejectedOffer(counterOffer) {
-    addToHistory(`AI rejected and counter-offered ${counterOffer}% of the vlaai`);
+function handleRejectedOffer() {
+    const offeringPlayer = gameState.currentPlayer === 1 ? 2 : 1;
+    addToHistory(`Player ${gameState.currentPlayer} rejected Player ${offeringPlayer}'s offer`);
     
-    // Log rejection and counter-offer
+    // Log rejection
     logGameEvent('offerRejected', { 
-        counterOffer: counterOffer 
+        offeringPlayer: offeringPlayer,
+        rejectingPlayer: gameState.currentPlayer
     });
     
     gameState.round++;
     
     if (gameState.round > gameState.maxRounds) {
-        elements.gameStatus.textContent = "Game Over! Maximum rounds reached.";
+        elements.gameStatus.textContent = "Game Over! Maximum rounds reached. Neither player gets any vlaai!";
         endGame('maxRoundsReached');
     } else {
-        elements.gameStatus.textContent = `AI counter-offered ${counterOffer}%. Make your offer for round ${gameState.round}!`;
+        elements.gameStatus.textContent = `Round ${gameState.round}: Player ${gameState.currentPlayer}, make your offer!`;
     }
-}
-
-// Simple AI response simulation (will be replaced with GPT-4)
-function simulateAIResponse(offer) {
-    const fairShare = gameState.totalPercentage / 2;
-    
-    // Accept if offer is fair or better for AI
-    if (offer <= fairShare) {
-        return {
-            accepted: true,
-            counterOffer: null
-        };
-    }
-    
-    // Otherwise reject and make counter-offer
-    return {
-        accepted: false,
-        counterOffer: Math.floor(fairShare)
-    };
 }
 
 // End the game
 function endGame(outcome) {
     gameState.gameOver = true;
-    elements.makeOffer.disabled = true;
+    elements.offerControls.style.display = 'none';
+    elements.responseControls.style.display = 'none';
     
     // Update final outcome in game log
     gameState.gameLog.finalOutcome = outcome;

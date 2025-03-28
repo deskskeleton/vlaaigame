@@ -2,17 +2,22 @@
 const chatElements = {
     messages: document.getElementById('chatMessages'),
     userInput: document.getElementById('userMessage'),
-    sendButton: document.getElementById('sendMessage')
+    sendButton: document.getElementById('sendMessage'),
+    toggleChat: document.getElementById('toggleChat'),
+    chatContent: document.getElementById('chatContent'),
+    chatSection: document.getElementById('chatSection')
 };
 
 // Chat state
 const chatState = {
     messages: [],
-    isProcessing: false
+    isProcessing: false,
+    isEnabled: true // Track if chat is enabled
 };
 
 // Initialize chat
 function initializeChat() {
+    // Set up message handlers
     chatElements.sendButton.addEventListener('click', handleSendMessage);
     chatElements.userInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
@@ -20,13 +25,49 @@ function initializeChat() {
         }
     });
 
-    // Add initial message
-    addAssistantMessage("Hello! I'm here to help explain the vlaai bargaining game. In this game, you'll negotiate how to split a traditional Limburg vlaai with another player. What percentage would you like to keep for yourself?");
+    // Set up chat toggle
+    chatElements.toggleChat.addEventListener('change', handleChatToggle);
+    
+    // Load chat state from localStorage
+    loadChatState();
+
+    // Add initial message if chat is enabled
+    if (chatState.isEnabled) {
+        addAssistantMessage("Hello! I'm here to help explain the vlaai bargaining game. Feel free to ask questions about the negotiation process!");
+    }
+}
+
+// Load chat state from localStorage
+function loadChatState() {
+    const savedState = localStorage.getItem('vlaaiGameChatEnabled');
+    if (savedState !== null) {
+        chatState.isEnabled = savedState === 'true';
+        chatElements.toggleChat.checked = chatState.isEnabled;
+        updateChatVisibility();
+    }
+}
+
+// Handle chat toggle
+function handleChatToggle(e) {
+    chatState.isEnabled = e.target.checked;
+    localStorage.setItem('vlaaiGameChatEnabled', chatState.isEnabled);
+    updateChatVisibility();
+}
+
+// Update chat visibility based on state
+function updateChatVisibility() {
+    if (chatState.isEnabled) {
+        chatElements.chatContent.classList.remove('hidden');
+        chatElements.chatSection.style.flex = '1';
+    } else {
+        chatElements.chatContent.classList.add('hidden');
+        chatElements.chatSection.style.flex = '0 0 auto';
+    }
 }
 
 // Handle sending a message
 async function handleSendMessage() {
-    if (chatState.isProcessing) {
+    if (chatState.isProcessing || !chatState.isEnabled) {
         return;
     }
 
@@ -96,7 +137,7 @@ async function sendToGPT4(message) {
                 messages: [
                     {
                         role: 'system',
-                        content: 'You are a helpful assistant explaining a vlaai bargaining game. The game involves two players deciding how to split a traditional Limburg vlaai (pie). Players take turns offering what percentage of the vlaai they want to keep for themselves. Be concise but friendly in your responses, and occasionally mention interesting facts about vlaai from the Limburg region.'
+                        content: 'You are a helpful assistant explaining a vlaai bargaining game. The game involves two players deciding how to split a traditional Limburg vlaai (pie). Players take turns offering what percentage of the vlaai they want to keep for themselves. Be concise but friendly in your responses, and occasionally mention interesting facts about vlaai from the Limburg region. Focus on helping players understand fair negotiation strategies.'
                     },
                     ...chatState.messages,
                     {
@@ -104,7 +145,7 @@ async function sendToGPT4(message) {
                         content: message
                     }
                 ],
-                max_tokens: 200,
+                max_tokens: 150,
                 temperature: 0.7
             })
         });
