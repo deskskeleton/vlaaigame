@@ -3,16 +3,16 @@ const chatElements = {
     messages: document.getElementById('chatMessages'),
     userInput: document.getElementById('userMessage'),
     sendButton: document.getElementById('sendMessage'),
-    toggleChat: document.getElementById('toggleChat'),
-    chatContent: document.getElementById('chatContent'),
-    chatSection: document.getElementById('chatSection')
+    toggleCheckbox: document.getElementById('chatToggle'),
+    chatContent: document.querySelector('.chat-content'),
+    chatSection: document.querySelector('.chat-section')
 };
 
 // Chat state
 const chatState = {
     messages: [],
     isProcessing: false,
-    isEnabled: true // Track if chat is enabled
+    isEnabled: false // Start with chat disabled by default
 };
 
 // Initialize chat
@@ -26,42 +26,34 @@ function initializeChat() {
     });
 
     // Set up chat toggle
-    chatElements.toggleChat.addEventListener('change', handleChatToggle);
+    chatElements.toggleCheckbox.addEventListener('change', handleChatToggle);
     
-    // Load chat state from localStorage
-    loadChatState();
-
-    // Add initial message if chat is enabled
-    if (chatState.isEnabled) {
-        addAssistantMessage("Hello! I'm here to help explain the vlaai bargaining game. Feel free to ask questions about the negotiation process!");
-    }
-}
-
-// Load chat state from localStorage
-function loadChatState() {
-    const savedState = localStorage.getItem('vlaaiGameChatEnabled');
-    if (savedState !== null) {
-        chatState.isEnabled = savedState === 'true';
-        chatElements.toggleChat.checked = chatState.isEnabled;
-        updateChatVisibility();
-    }
+    // Initialize chat as hidden
+    chatElements.chatSection.classList.add('hidden');
+    chatElements.chatContent.classList.add('hidden');
+    chatElements.toggleCheckbox.checked = false;
 }
 
 // Handle chat toggle
 function handleChatToggle(e) {
     chatState.isEnabled = e.target.checked;
-    localStorage.setItem('vlaaiGameChatEnabled', chatState.isEnabled);
-    updateChatVisibility();
-}
-
-// Update chat visibility based on state
-function updateChatVisibility() {
+    
     if (chatState.isEnabled) {
-        chatElements.chatContent.classList.remove('hidden');
-        chatElements.chatSection.style.flex = '1';
+        // Show chat
+        chatElements.chatSection.classList.remove('hidden');
+        setTimeout(() => {
+            chatElements.chatContent.classList.remove('hidden');
+            // Add welcome message only when first enabled in a session
+            if (chatElements.messages.children.length === 0) {
+                addAssistantMessage("Hello! I'm here to help explain the vlaai bargaining game. Feel free to ask questions about the negotiation process!");
+            }
+        }, 300);
     } else {
+        // Hide chat
         chatElements.chatContent.classList.add('hidden');
-        chatElements.chatSection.style.flex = '0 0 auto';
+        setTimeout(() => {
+            chatElements.chatSection.classList.add('hidden');
+        }, 300);
     }
 }
 
@@ -163,50 +155,4 @@ async function sendToGPT4(message) {
 }
 
 // Initialize chat when the page loads
-document.addEventListener('DOMContentLoaded', initializeChat);
-
-// Toggle chat visibility
-function toggleChat() {
-    const chatSection = document.querySelector('.chat-section');
-    const chatContent = document.querySelector('.chat-content');
-    const isEnabled = document.getElementById('chatToggle').checked;
-    
-    // Save preference
-    localStorage.setItem('chatEnabled', isEnabled);
-    
-    // Toggle visibility with animation
-    if (isEnabled) {
-        chatSection.classList.remove('hidden');
-        // Small delay to allow the section to expand before showing content
-        setTimeout(() => {
-            chatContent.classList.remove('hidden');
-        }, 300);
-    } else {
-        chatContent.classList.add('hidden');
-        // Wait for content to fade out before collapsing section
-        setTimeout(() => {
-            chatSection.classList.add('hidden');
-        }, 300);
-    }
-}
-
-// Initialize chat state
-function initializeChat() {
-    const chatEnabled = localStorage.getItem('chatEnabled') === 'true';
-    const chatToggle = document.getElementById('chatToggle');
-    const chatSection = document.querySelector('.chat-section');
-    const chatContent = document.querySelector('.chat-content');
-    
-    // Set initial state
-    chatToggle.checked = chatEnabled;
-    if (!chatEnabled) {
-        chatSection.classList.add('hidden');
-        chatContent.classList.add('hidden');
-    }
-    
-    // Add event listener
-    chatToggle.addEventListener('change', toggleChat);
-}
-
-// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', initializeChat); 
