@@ -122,12 +122,13 @@ function handleOffer() {
     }
 
     gameState.currentOffer = offerAmount;
-    addToHistory(`Round ${gameState.round}: Player ${gameState.currentPlayer} offered ${offerAmount}% of the vlaai`);
+    addToHistory(`Round ${gameState.round}: Player ${gameState.currentPlayer} wants to keep ${offerAmount}% and give ${gameState.totalPercentage - offerAmount}% to the other player`);
     
     // Log the offer
     logGameEvent('playerOffer', { 
         player: gameState.currentPlayer,
-        percentage: offerAmount 
+        percentageKept: offerAmount,
+        percentageOffered: gameState.totalPercentage - offerAmount
     });
 
     // Switch to other player's turn to respond
@@ -156,15 +157,15 @@ function handleAcceptedOffer() {
     const offeringPlayer = gameState.currentPlayer === 1 ? 2 : 1;
     const receivingPlayer = gameState.currentPlayer;
     
-    addToHistory(`Player ${gameState.currentPlayer} accepted Player ${offeringPlayer}'s offer of ${gameState.currentOffer}%`);
-    elements.gameStatus.textContent = `Offer accepted! Player ${offeringPlayer} gets ${gameState.currentOffer}%, Player ${receivingPlayer} gets ${gameState.totalPercentage - gameState.currentOffer}%`;
+    addToHistory(`Player ${gameState.currentPlayer} accepted: Player ${offeringPlayer} keeps ${gameState.currentOffer}%, Player ${receivingPlayer} gets ${gameState.totalPercentage - gameState.currentOffer}%`);
+    elements.gameStatus.textContent = `Deal! Player ${offeringPlayer} keeps ${gameState.currentOffer}%, Player ${receivingPlayer} gets ${gameState.totalPercentage - gameState.currentOffer}%`;
     
     // Log acceptance
     logGameEvent('offerAccepted', { 
         offeringPlayer: offeringPlayer,
         receivingPlayer: receivingPlayer,
-        offerPercentage: gameState.currentOffer,
-        remainingPercentage: gameState.totalPercentage - gameState.currentOffer
+        offerPercentageKept: gameState.currentOffer,
+        offerPercentageGiven: gameState.totalPercentage - gameState.currentOffer
     });
     
     endGame('accepted');

@@ -163,4 +163,50 @@ async function sendToGPT4(message) {
 }
 
 // Initialize chat when the page loads
+document.addEventListener('DOMContentLoaded', initializeChat);
+
+// Toggle chat visibility
+function toggleChat() {
+    const chatSection = document.querySelector('.chat-section');
+    const chatContent = document.querySelector('.chat-content');
+    const isEnabled = document.getElementById('chatToggle').checked;
+    
+    // Save preference
+    localStorage.setItem('chatEnabled', isEnabled);
+    
+    // Toggle visibility with animation
+    if (isEnabled) {
+        chatSection.classList.remove('hidden');
+        // Small delay to allow the section to expand before showing content
+        setTimeout(() => {
+            chatContent.classList.remove('hidden');
+        }, 300);
+    } else {
+        chatContent.classList.add('hidden');
+        // Wait for content to fade out before collapsing section
+        setTimeout(() => {
+            chatSection.classList.add('hidden');
+        }, 300);
+    }
+}
+
+// Initialize chat state
+function initializeChat() {
+    const chatEnabled = localStorage.getItem('chatEnabled') === 'true';
+    const chatToggle = document.getElementById('chatToggle');
+    const chatSection = document.querySelector('.chat-section');
+    const chatContent = document.querySelector('.chat-content');
+    
+    // Set initial state
+    chatToggle.checked = chatEnabled;
+    if (!chatEnabled) {
+        chatSection.classList.add('hidden');
+        chatContent.classList.add('hidden');
+    }
+    
+    // Add event listener
+    chatToggle.addEventListener('change', toggleChat);
+}
+
+// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', initializeChat); 
