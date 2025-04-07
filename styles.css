@@ -194,6 +194,13 @@ input[type="number"] {
 .export-section {
     margin-top: 20px;
     text-align: center;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.export-section button {
+    min-width: 150px;
 }
 
 /* Chat Section Styles */
@@ -331,5 +338,15 @@ input[type="number"] {
     .response-controls {
         flex-direction: column;
         gap: 10px;
+    }
+    
+    .export-section {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .export-section button {
+        width: 100%;
+        max-width: 300px;
     }
 } 

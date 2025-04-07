@@ -218,4 +218,82 @@ window.exportGameLogs = function() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-}; 
+};
+
+// Function to collect all experiment data
+function collectExperimentData() {
+    // Get game logs
+    const gameLogs = JSON.parse(localStorage.getItem('vlaaiGameLogs') || '[]');
+    
+    // Get current game state
+    const currentGame = {
+        gameState: {
+            round: gameState.round,
+            currentPlayer: gameState.currentPlayer,
+            gameOver: gameState.gameOver,
+            finalOutcome: gameState.gameLog.finalOutcome
+        },
+        history: Array.from(elements.historyList.children).map(li => li.textContent),
+        timestamp: new Date().toISOString()
+    };
+
+    // Get chat logs if chat was used
+    const chatLogs = chatState?.messages || [];
+
+    // Combine all data
+    const experimentData = {
+        experimentId: gameState.gameLog.gameId,
+        completedAt: new Date().toISOString(),
+        gameLogs: gameLogs,
+        currentGame: currentGame,
+        chatLogs: chatLogs
+    };
+
+    return experimentData;
+}
+
+// Function to download experiment data
+function downloadExperimentData(data) {
+    // Create a formatted timestamp for the filename
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    
+    // Convert data to JSON string
+    const jsonStr = JSON.stringify(data, null, 2);
+    
+    // Create and trigger download
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vlaai_experiment_${timestamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// Function to handle experiment completion
+function finishExperiment() {
+    // Collect all data
+    const experimentData = collectExperimentData();
+    
+    // Download the data
+    downloadExperimentData(experimentData);
+    
+    // Clear all stored data
+    localStorage.removeItem('vlaaiGameLogs');
+    
+    // Small delay to ensure download starts before refresh
+    setTimeout(() => {
+        // Refresh the page to reset the experiment
+        window.location.reload();
+    }, 1000);
+}
+
+// Initialize the game when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    initializeGame();
+    
+    // Add finish experiment button handler
+    document.getElementById('finishExperiment').addEventListener('click', finishExperiment);
+}); 

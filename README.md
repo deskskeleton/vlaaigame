@@ -10,7 +10,7 @@ This game implements a classic bargaining scenario where two players need to agr
 
 1. Open the repository in GitHub Codespaces
 2. Wait for the Codespace to fully load (you'll see a stable VS Code interface)
-3. Look for the "Go Live" button in the bottom right corner of the window
+3. Look for the "Go Live" button in the bottom right corner of the window (get the "Live Server" extension)
 4. Click "Go Live" to start the local server
 5. The game will open in a new browser tab automatically
 
