@@ -3,7 +3,7 @@ const chatElements = {
     messages: document.getElementById('chatMessages'),
     userInput: document.getElementById('userMessage'),
     sendButton: document.getElementById('sendMessage'),
-    toggleCheckbox: document.getElementById('chatToggle'),
+    toggleCheckbox: document.getElementById('toggleChat'),
     chatContent: document.querySelector('.chat-content'),
     chatSection: document.querySelector('.chat-section')
 };
@@ -27,7 +27,7 @@ function initializeChat() {
 
     // Set up chat toggle
     chatElements.toggleCheckbox.addEventListener('change', handleChatToggle);
-    
+
     // Initialize chat as hidden
     chatElements.chatSection.classList.add('hidden');
     chatElements.chatContent.classList.add('hidden');
@@ -37,7 +37,7 @@ function initializeChat() {
 // Handle chat toggle
 function handleChatToggle(e) {
     chatState.isEnabled = e.target.checked;
-    
+
     if (chatState.isEnabled) {
         // Show chat
         chatElements.chatSection.classList.remove('hidden');
@@ -94,7 +94,7 @@ function addUserMessage(message) {
     messageDiv.textContent = message;
     chatElements.messages.appendChild(messageDiv);
     chatElements.messages.scrollTop = chatElements.messages.scrollHeight;
-    
+
     // Store in chat history
     chatState.messages.push({ role: 'user', content: message });
 }
@@ -106,7 +106,7 @@ function addAssistantMessage(message) {
     messageDiv.textContent = message;
     chatElements.messages.appendChild(messageDiv);
     chatElements.messages.scrollTop = chatElements.messages.scrollHeight;
-    
+
     // Store in chat history
     chatState.messages.push({ role: 'assistant', content: message });
 }
@@ -125,7 +125,7 @@ async function sendToGPT4(message) {
                 'Authorization': `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
-                model: 'gpt-4',
+                model: 'gpt-4o-mini',
                 messages: [
                     {
                         role: 'system',
