@@ -11,7 +11,7 @@
         <!-- Game Section -->
         <div class="game-section">
             <h1>🥧 Vlaai Bargaining Game</h1>
-            
+
             <!-- Player Labels -->
             <div class="player-labels">
                 <div id="player1Label" class="player-label active">Player 1</div>
@@ -57,14 +57,16 @@
             </div>
         </div>
 
+        <!-- Toggle Chat Outside Chat Section -->
+        <label class="chat-toggle">
+            <input type="checkbox" id="toggleChat">
+            <span class="toggle-label">Show AI Assistant</span>
+        </label>
+
         <!-- Chat Section -->
         <div id="chatSection" class="chat-section">
             <div class="chat-header">
                 <h2>AI Assistant</h2>
-                <label class="chat-toggle">
-                    <input type="checkbox" id="toggleChat" checked>
-                    <span class="toggle-label">Show AI Assistant</span>
-                </label>
             </div>
             <div id="chatContent" class="chat-content">
                 <div id="chatMessages" class="chat-messages"></div>

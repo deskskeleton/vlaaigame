@@ -173,6 +173,10 @@ input[type="number"] {
     padding: 20px;
     background-color: #f8f9fa;
     border-radius: 5px;
+    height: 200px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .game-history h3 {
@@ -182,7 +186,9 @@ input[type="number"] {
 
 #historyList {
     list-style: none;
-    max-height: 200px;
+    padding-right: 10px;
+    overflow-y: auto;
+    flex-grow: 1;
     overflow-y: auto;
 }
 
@@ -191,8 +197,9 @@ input[type="number"] {
     border-bottom: 1px solid #ddd;
 }
 
+
 .export-section {
-    margin-top: 20px;
+    margin-top: 50px;
     text-align: center;
     display: flex;
     gap: 10px;
@@ -270,8 +277,9 @@ input[type="number"] {
 }
 
 .chat-messages {
-    flex: 1;
+    flex-grow: 1;
     overflow-y: auto;
+    max-height: 500px;
     padding: 10px;
     background-color: #f8f9fa;
     border-radius: 5px;
@@ -313,38 +321,38 @@ input[type="number"] {
     .container {
         flex-direction: column;
     }
-    
+
     .chat-section {
         max-width: 100%;
         min-width: 100%;
     }
-    
+
     .chat-section.hidden {
         max-height: 0;
         min-height: 0;
     }
-    
+
     .chat-toggle {
         position: fixed;
         top: 10px;
         right: 10px;
     }
-    
+
     .player-labels {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .response-controls {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .export-section {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .export-section button {
         width: 100%;
         max-width: 300px;
